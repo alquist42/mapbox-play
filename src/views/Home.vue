@@ -35,8 +35,6 @@ import worker from 'workerize-loader!../services/recommended'
 
 let instance = worker()
 
-console.log(instance)
-
 export default {
   name: 'Home',
   components: {
@@ -96,12 +94,6 @@ export default {
       this.draw.delete(e.features[0].id)
     },
     async createVillages () {
-      console.log({
-        threshold: this.threshold,
-        scaleFactor: this.scaleFactor,
-        kmeansOptions: this.kmeansOptions,
-        hullOptions: this.hullOptions
-      })
       if (this.source) {
         const villages = await instance.recommend(this.extent, this.source, {
           threshold: this.threshold,
