@@ -1,13 +1,34 @@
-# app 
+const turf = require('@turf/turf')
 
-## Algo
+// creates an array of alternating property name, property value
+// with properties in sorted order
+// then stringify's that array
+function stringifyPropsInOrder (arr) {
+  const keys = arr.sort()
+  let output = []; let prop
+  for (let i = 0; i < keys.length; i++) {
+    prop = keys[i]
+    output.push(prop)
+    output.push(arr[prop])
+  }
+  return JSON.stringify(output)
+}
 
-```javascript
+const cache = {}
+
 export async function recommend (polygon, points, { threshold, scaleFactor, kmeansOptions, hullOptions }) {
-  const ptsWithin = turf.pointsWithinPolygon(points, polygon)
+  const ptsWithin = cache[stringifyPropsInOrder(polygon.geometry.coordinates)] || turf.pointsWithinPolygon(points, polygon)
 
   // Filter by score
   const filtered = ptsWithin.features.filter(feature => feature.properties.score >= threshold)
+
+  if (kmeansOptions.numberOfClusters === 0) {
+    kmeansOptions = {}
+  }
+
+  if (hullOptions.maxEdge === 0) {
+    hullOptions = {}
+  }
 
   if (filtered.length) {
     // Cluster K-means
@@ -25,38 +46,3 @@ export async function recommend (polygon, points, { threshold, scaleFactor, kmea
 
   return turf.featureCollection([])
 }
-
-```
-
-## Project setup
-```
-yarn install
-```
-
-### Compiles and hot-reloads for development
-```
-yarn run serve
-```
-
-### Compiles and minifies for production
-```
-yarn run build
-```
-
-### Run your tests
-```
-yarn run test
-```
-
-### Lints and fixes files
-```
-yarn run lint
-```
-
-### Run your unit tests
-```
-yarn run test:unit
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
